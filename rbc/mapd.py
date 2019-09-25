@@ -137,3 +137,39 @@ class RemoteMapD(RemoteJIT):
 
         return self.thrift_call('register_runtime_udf', self.session_id,
                                 ast_signatures, device_ir_map)
+
+
+class Calcite(object):
+
+    multiplexed = False
+
+    def __init__(self,
+                 host='localhost',
+                 port=6279,
+                 **options):
+        self.host = host
+        self.port = port
+        self.debug = options.pop('debug', False)
+        thrift_filename = os.path.join(os.path.dirname(__file__),
+                                       'calciteserver.thrift')
+        self.thrift_content = resolve_includes(
+            open(thrift_filename).read(),
+            [os.path.dirname(thrift_filename)]).replace(
+                'completion_hints.', '')
+
+    def make_client(self):
+        from .thrift import Client
+        return Client(
+            host=self.host,
+            port=self.port,
+            multiplexed=self.multiplexed,
+            thrift_content=self.thrift_content,
+            socket_timeout=10000)
+
+    def thrift_call(self, name, *args):
+        if self.debug:
+            msg = 'thrift_call %s%s' % (name, args)
+            if len(msg) > 200:
+                msg = msg[:180] + '...' + msg[-15:]
+            print(msg)
+        return self.make_client()(CalciteServer={name: args})['CalciteServer'][name]

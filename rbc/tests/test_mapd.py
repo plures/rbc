@@ -592,3 +592,9 @@ def test_truncate_issue(mapd):
         ' from {mapd.table_name} limit 1'
         .format(**locals()))
     assert list(result)[0] == (64,)
+
+
+def test_calcite():
+    calcite = rbc_mapd.Calcite()
+    r = calcite.thrift_call('getUserDefinedFunctionWhitelist')
+    assert r == '[]'
