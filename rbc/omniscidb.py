@@ -248,6 +248,9 @@ class RemoteOmnisci(RemoteJIT):
         self.has_cuda = None
         self._null_values = dict()
 
+        # An user-defined device-LLVM IR mapping.
+        self.user_defined_llvm_ir = {}
+
     def _init_thrift_typemap(self):
         """Initialize thrift type map using client thrift configuration.
         """
@@ -970,6 +973,7 @@ class RemoteOmnisci(RemoteJIT):
                     functions_and_signatures,
                     target_info,
                     pipeline_class=OmnisciCompilerPipeline,
+                    user_defined_llvm_ir=self.user_defined_llvm_ir.get(device),
                     debug=self.debug)
 
                 assert llvm_module.triple == target_info.triple

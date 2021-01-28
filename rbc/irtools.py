@@ -357,6 +357,7 @@ def compile_instance(func, sig,
 def compile_to_LLVM(functions_and_signatures,
                     target_info: TargetInfo,
                     pipeline_class=compiler.Compiler,
+                    user_defined_llvm_ir=None,
                     debug=False):
     """Compile functions with given signatures to target specific LLVM IR.
 
@@ -366,6 +367,9 @@ def compile_to_LLVM(functions_and_signatures,
       Specify a list of Python function and its signatures pairs.
     target : TargetInfo
       Specify target device information.
+    user_defined_llvm_ir : {None, str, ModuleRef}
+      Specify user-defined LLVM IR module that is linked in to the
+      returned module.
     debug : bool
 
     Returns
@@ -399,6 +403,12 @@ def compile_to_LLVM(functions_and_signatures,
         codegen = target_context.codegen()
         main_library = codegen.create_library('rbc.irtools.compile_to_IR')
         main_module = main_library._final_module
+
+        if user_defined_llvm_ir is not None:
+            if isinstance(user_defined_llvm_ir, str):
+                user_defined_llvm_ir = llvm.parse_assembly(user_defined_llvm_ir)
+            assert isinstance(user_defined_llvm_ir, llvm.ModuleRef)
+            main_module.link_in(user_defined_llvm_ir, preserve=True)
 
         succesful_fids = []
         function_names = []

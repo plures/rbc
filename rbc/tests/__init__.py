@@ -8,7 +8,7 @@ from collections import defaultdict
 
 def omnisci_fixture(caller_globals, minimal_version=(0, 0),
                     suffices=['', '10', 'null', 'array', 'arraynull'],
-                    load_columnar=True):
+                    load_columnar=True, debug=False):
     """Usage from a rbc/tests/test_xyz.py file:
 
       import pytest
@@ -59,7 +59,7 @@ def omnisci_fixture(caller_globals, minimal_version=(0, 0),
     filename = caller_globals['__file__']
     table_name = os.path.splitext(os.path.basename(filename))[0]
 
-    config = rbc_omnisci.get_client_config(debug=not True)
+    config = rbc_omnisci.get_client_config(debug=debug)
     m = rbc_omnisci.RemoteOmnisci(**config)
 
     sqltypes = ['FLOAT', 'DOUBLE', 'TINYINT', 'SMALLINT', 'INT', 'BIGINT',
